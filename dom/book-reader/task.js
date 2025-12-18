@@ -1,57 +1,39 @@
-const bookContent = document.querySelector('.book__content');
-const fontSize = document.body.querySelectorAll("a.font-size");
-let bookContentClass = 0;
-for (let i = 0; i < fontSize.length; i++) {
-    fontSize[i].addEventListener("click", function () {
-        event.preventDefault();
-        for (const botom of fontSize) {
-            if (botom.className.includes('font-size_active')) {
-                botom.classList.remove('font-size_active');
-            }
-        }
-        this.classList.add('font-size_active');
-        console.log(this)
-        if (bookContent.className.includes(bookContentClass)) {
-            bookContent.classList.remove(bookContentClass);
-        }
-        bookContentClass = this.classList[1];
+const controlObjectsAttributes = {
+  'book__control_font-size': ['book_fs-small', '', 'book_fs-big'],
+  'book__control_color': ['book_color-black', 'book_color-gray', 'book_color-whitesmoke'],
+  'book__control_background': ['book_bg-black', 'book_bg-gray', 'book_bg-white'],
+};
+const bookContainer = document.getElementById('book');
 
-        if (this.className.includes('font-size_small') || this.className.includes('font-size_big')) {
-            bookContent.classList.add(this.classList[1])
-        }
-    })
-}
-const colorText = document.body.querySelectorAll(".book__control_color a.color");
+function setActiveStyleElement (containerSelector, selectorActivator) {
 
-for (let i = 0; i < colorText.length; i++) {
-    colorText[i].addEventListener("click", function () {
-        for (const botom of colorText) {
-            if (botom.className.includes('color_active')) {
-                botom.classList.remove('color_active');
-            }
-        }
-        this.classList.add('color_active');
-        if(this.hasAttribute('data-color')){
-            bookContent.style.color = this.dataset.color;
-        } else {
-            bookContent.style.color = '';
-        }  
-    })
-}
-const colorBack = document.body.querySelectorAll(".book__control_background a.color");
+let controlObjects = [...document.querySelector('.' + containerSelector).querySelectorAll('a')];
+let textAttrs = controlObjectsAttributes[containerSelector];
 
-for (let i = 0; i < colorBack.length; i++) {
-    colorBack[i].addEventListener("click", function () {
-        for (const botom of colorBack) {
-            if (botom.className.includes('color_active')) {
-                botom.classList.remove('color_active');
-            }
-        }
-        this.classList.add('color_active');
-        if(this.hasAttribute('data-color')){
-            bookContent.style.background = this.dataset.color;
-        } else {
-            bookContent.style.background = '';
-        }
-    })
+listeners(controlObjects, selectorActivator, textAttrs);
 }
+
+function listeners(controlObjects, selectorActivator, textAttrs) {
+
+  controlObjects.forEach((elm, index, arr) => {
+    elm.addEventListener('click', (elm) => onClickHandler(elm, index, arr, textAttrs, selectorActivator));    
+  });    
+};
+
+function onClickHandler(elementSelected, index, arr, textAttrs, selectorActivator) {
+  
+  elementSelected.preventDefault();
+  arr.forEach((elm, idx) => {
+    if (idx === index) {
+      elm.classList.add(selectorActivator);
+      textAttrs[idx] !== '' ? bookContainer.classList.add(textAttrs[idx]): null;      
+    } else {
+      elm.classList.remove(selectorActivator);
+      textAttrs[idx] !== '' ? bookContainer.classList.remove(textAttrs[idx]): null;
+    };
+  });  
+  };
+
+  setActiveStyleElement('book__control_font-size', 'font-size_active');
+  setActiveStyleElement('book__control_color', 'color_active');
+  setActiveStyleElement('book__control_background', 'color_active');
