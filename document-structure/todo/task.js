@@ -23,21 +23,12 @@ function taskAdd(event) {
         taskRemoveButton = document.getElementsByClassName(`task__remove`);
        
         
-        tasksList.onclick = function(event) {
+   
     let target = event.target;
-
     if ( target.classList.contains(`task__remove`) ) {
         target.closest(`.task`).remove();
     }
 }
     }
-}
 
 tasksAddButton.addEventListener(`click`, taskAdd);
-
-tasksInput.addEventListener(event => {    
-    if (event.keyCode === 13) {
-        taskAdd();            
-    }
-});
-

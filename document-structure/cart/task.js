@@ -1,56 +1,141 @@
-"use strict";
+const setOnClickEventForClass = (elementClassName, func) => {
+	Array.from(document.getElementsByClassName(elementClassName)).forEach(
+		element => {
+			element.addEventListener("click", e => {
+				func(e);
+			});
+		}
+	);
+};
 
-const cart = document.querySelector('.cart__products');
-const valueButtons = document.querySelectorAll('.product__quantity-control');
-const addButtons = document.querySelectorAll('.product__add');
+
+const changeQuantity = (e, value) => {
+	let quantity = e.target.parentNode.getElementsByClassName(
+		"product__quantity-value"
+	)[0];
+	let currentValue = Number(quantity.textContent);
+	let newValue = currentValue + value;
+	if (newValue > 0) quantity.textContent = newValue;
+};
+
+const step = 1;
+
+const decrement = e => {
+	changeQuantity(e, -step);
+};
+
+const increment = e => {
+	changeQuantity(e, step);
+};
 
 
-for (let item of valueButtons) {
-    item.addEventListener('click', changeValue);
-}
 
-for (let item of addButtons) {
-    item.addEventListener('click', addToCart);
-}
+let cart = document.getElementsByClassName("cart__products")[0];
 
-function changeValue(event) {
+const addProductToCart = e => {
+	let product = e.target.closest(".product");
+	let quantity = Number(
+		product.getElementsByClassName("product__quantity-value")[0].textContent
+	);
+	let image = product
+		.getElementsByClassName("product__image")[0]
+		.getAttribute("src");
+	let id = product.getAttribute("data-id");
 
-    let value = event.target.parentNode.querySelector('.product__quantity-value');
-    let count = +value.innerText;
-    
-    if (event.target.classList.contains('product__quantity-control_inc')) {
-        value.innerText = Number(value.innerText) + 1;
-    } else {
-        if (count > 1) {
-            value.innerText = Number(value.innerText) - 1;
-        } 
-    }
-}
+	let delay = 100;
+	let duration = 800;
 
-function addToCart(event) {
+	const flyImageTo = (left, top) => {
+		let flyingImg = document.createElement("img");
+		flyingImg.setAttribute("src", image);
+		flyingImg.style.position = "fixed";
+		flyingImg.style.width = "100px";
+		flyingImg.style.height = "100px";
+		flyingImg.style.objectFit = "contain";
+		flyingImg.style.left = `${product.querySelector("img").offsetLeft -
+      window.scrollX}px`;
+		flyingImg.style.top = `${product.querySelector("img").offsetTop -
+      window.scrollY}px`;
 
-    const product = event.target.closest('.product');
-    const id = product.dataset.id;
-    const countFromProduct = +event.target.parentNode.querySelector('.product__quantity-value').innerText;
+		document.querySelector("body").appendChild(flyingImg);
 
-    for (let item of cart.children) {
+		setTimeout(() => {
+			flyingImg.style = `
+        position: fixed;
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        left: ${left}px;
+        top: ${top}px;
+        transition: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transition-duration: ${duration}ms;
+      `
+		}, delay);
+		setTimeout(() => {
+			flyingImg.remove();
+		}, duration + delay);
+	};
 
-        if (item.dataset.id === id) {
-            let productCount = item.querySelector('.cart__product-count');
-            let total = +productCount.innerText;
-            productCount.innerText = total + countFromProduct;
+	let productInCart = cart.querySelector(`[data-id="${id}"]`);
+	if (productInCart) {
+		flyImageTo(
+			productInCart.offsetLeft - window.scrollX,
+			productInCart.offsetTop - window.scrollY
+		);
+		setTimeout(() => {
+			productInCart.querySelector(".cart__product-count").textContent =
+				Number(
+					productInCart.querySelector(".cart__product-count").textContent
+				) + quantity;
+		}, duration + delay);
+	} else {
+		let fakeHTML = document.createElement("div");
+		fakeHTML.innerHTML = `
+      <div style="
+        border-radius: 6px;
+        margin-right: 10px;
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+      "></div>
+      <p></p>`;
+		cart.appendChild(fakeHTML);
+		cart.closest(".cart").style.display = "block";
 
-            return false;
-        }
-    }
+		flyImageTo(
+			fakeHTML.offsetLeft - window.scrollX,
+			fakeHTML.offsetTop - window.scrollY
+		);
 
-    const productImg = product.querySelector('.product__image').src;
-    const count = product.querySelector('.product__quantity-value').innerText;
+		setTimeout(() => {
+			fakeHTML.remove();
 
-    const productToCart = `<div class="cart__product" data-id="${id}">
-                                <img class="cart__product-image" src="${productImg}">
-                                <div class="cart__product-count">${count}</div>
-                            </div>`;
+			let html = document.createElement("div");
+			html.setAttribute("class", "cart__product");
+			html.setAttribute("data-id", `${id}`);
+			html.innerHTML = `
+        <img class="cart__product-image" src=${image}>
+        <div class="cart__product-count">${quantity}</div>
+        <div class="cart__product-delete">Удалить</div>
+        `;
+			cart.appendChild(html);
 
-    cart.insertAdjacentHTML('beforeend', productToCart);
-}
+			html
+				.querySelector(".cart__product-delete")
+				.addEventListener("click", e => {
+					e.target.closest(".cart__product").remove();
+					if (!cart.childElementCount) {
+						cart.closest(".cart").style.display = "none";
+					}
+				});
+		}, duration + delay);
+	}
+};
+
+const addEvents = () => {
+	setOnClickEventForClass("product__quantity-control_dec", decrement);
+	setOnClickEventForClass("product__quantity-control_inc", increment);
+	setOnClickEventForClass("product__add", addProductToCart);
+};
+
+addEvents();
