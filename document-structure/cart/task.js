@@ -10,27 +10,27 @@ const setOnClickEventForClass = (elementClassName, func) => {
 
 
 const changeQuantity = (e, value) => {
-	let quantity = e.target.parentNode.getElementsByClassName(
+	let quantityElement = e.target.parentNode.getElementsByClassName(
 		"product__quantity-value"
 	)[0];
-	let currentValue = Number(quantity.textContent);
+	let currentValue = Number(quantityElement.textContent);
 	let newValue = currentValue + value;
-	if (newValue > 0) quantity.textContent = newValue;
+	if (newValue > 0) quantityElement.textContent = newValue;
 };
 
-const step = 1;
+const incrementStep = 1;
 
 const decrement = e => {
-	changeQuantity(e, -step);
+	changeQuantity(e, -incrementStep);
 };
 
 const increment = e => {
-	changeQuantity(e, step);
+	changeQuantity(e, incrementStep);
 };
 
 
 
-let cart = document.getElementsByClassName("cart__products")[0];
+let cartProducts = document.getElementsByClassName("cart__products")[0];
 
 const addProductToCart = e => {
 	let product = e.target.closest(".product");
@@ -76,7 +76,7 @@ const addProductToCart = e => {
 		}, duration + delay);
 	};
 
-	let productInCart = cart.querySelector(`[data-id="${id}"]`);
+	let productInCart = cartProducts.querySelector(`[data-id="${id}"]`);
 	if (productInCart) {
 		flyImageTo(
 			productInCart.offsetLeft - window.scrollX,
@@ -99,8 +99,8 @@ const addProductToCart = e => {
         object-fit: contain;
       "></div>
       <p></p>`;
-		cart.appendChild(fakeHTML);
-		cart.closest(".cart").style.display = "block";
+		cartProducts.appendChild(fakeHTML);
+		cartProducts.closest(".cart").style.display = "block";
 
 		flyImageTo(
 			fakeHTML.offsetLeft - window.scrollX,
@@ -118,14 +118,14 @@ const addProductToCart = e => {
         <div class="cart__product-count">${quantity}</div>
         <div class="cart__product-delete">Удалить</div>
         `;
-			cart.appendChild(html);
+			cartProducts.appendChild(html);
 
 			html
 				.querySelector(".cart__product-delete")
 				.addEventListener("click", e => {
 					e.target.closest(".cart__product").remove();
-					if (!cart.childElementCount) {
-						cart.closest(".cart").style.display = "none";
+					if (!cartProducts.childElementCount) {
+						cartProducts.closest(".cart").style.display = "none";
 					}
 				});
 		}, duration + delay);

@@ -1,34 +1,27 @@
-"use strict";
+const buttonAdd = document.getElementById('tasks__add');
+const input = document.getElementById('task__input');
+const task = document.querySelector('.task');
+const taskList = document.getElementById('tasks__list');
 
-const tasksInput = document.getElementById(`task__input`);
-const tasksAddButton = document.getElementById(`tasks__add`);
-const tasksList = document.getElementById(`tasks__list`);
-let taskRemoveButton;
+buttonAdd.addEventListener('click', (event) => {
+	const input = document.getElementById('task__input');
 
+	event.preventDefault();
 
-function taskAdd(event) {
-    if (tasksInput.value.trim()) {
-        event.preventDefault();
+	if (input.value.trim() != '') {
+		addTask();
+	}
+});
 
-        tasksList.insertAdjacentHTML(`beforeEnd`, `
-            <div class="task">
-            <div class="task__title">
-                ${tasksInput.value}
-            </div>
-            <a href="#" class="task__remove">&times;</a>
-            </div>`);
-        
-        tasksInput.value = "";
+taskList.addEventListener('click', (e) => {
+	e.preventDefault();
+	if(e.target.className === 'task__remove'){
+		e.target.parentElement.remove();
+	}
+});
 
-        taskRemoveButton = document.getElementsByClassName(`task__remove`);
-       
-        
-   
-    let target = event.target;
-    if ( target.classList.contains(`task__remove`) ) {
-        target.closest(`.task`).remove();
-    }
+function addTask() {
+	taskList.insertAdjacentHTML('beforeEnd', '<div class="task"><div class="task__title""></div><a href="#" class="task__remove">&times;</a></div>');
+	taskList.lastChild.querySelector('.task__title').insertAdjacentHTML('afterBegin', input.value.trim());
+	input.value = "";
 }
-    }
-
-tasksAddButton.addEventListener(`click`, taskAdd);
